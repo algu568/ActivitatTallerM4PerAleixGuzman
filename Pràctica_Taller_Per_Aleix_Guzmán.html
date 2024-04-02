@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notícies RSS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #CCFFCC;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+    }
+
+    .article {
+      width: 30%;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 3px solid #ccc;
+      background-color: white;
+      border-radius: 5px;
+    }
+
+    .article img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    h1 {
+      text-align: center;
+      color: black;
+      padding-top: 20px;
+    }
+
+    nav {
+      background-color: #99FF99;
+      border-radius: 5px;
+    }
+    #marquee {
+       width: 100%;
+       background-color: var(--color2)  ; 
+       padding-bottom: 10px; 
+}
+#search-button {
+      
+}
+#button {
+  padding:10px;
+  font-size: large;
+}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div id="button">
+    <input type="text" id="search-input" placeholder="Introdueix la paraula de cerca" style="width: 256px; ">
+    <button id="search-button">🔍</button>
+  </div>
+    <h1>Exercisi gestor de continguts - Per Aleix Guzmán</h1>
+    <div class="search-results">
+
+    </div>
+    <div id="marquee"><marquee onmouseover="this.stop();" onmouseout="this.start();" id="scroll"><strong>BTC</strong>: 70297.97     <strong>ETH</strong>: 3605.7     <strong>BNB</strong>: 605.9     <strong>ADA</strong>: 0.6485     <strong>XRP</strong>: 0.6261     <strong>DOGE</strong>: 0.2071     <strong>SOL</strong>: 196.9     <strong>DOT</strong>: 9.56     <strong>LUNA</strong>: 1.0968     <strong>AVAX</strong>: 53.81     </marquee></div>
+  </nav>
+  <br>
+  <div class="container" id="contingutRSS"></div>
+  <div class="container" id="rssContainer"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const rssUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://elpais.com/rss/elpais/portada.xml");
+
+      fetch(rssUrl)
+        .then(response => response.json())
+        .then(data => {
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(data.contents, "application/xml");
+          const items = xml.querySelectorAll("item");
+          const container = document.getElementById("rssContainer");
+
+          items.forEach(item => {
+            const title = item.querySelector("title").textContent;
+            const description = item.querySelector("description").textContent;
+            const image = item.querySelector("enclosure") ? item.querySelector("enclosure").getAttribute("url") : "";
+            const link = item.querySelector("link").textContent;
+
+            const articleDiv = document.createElement("div");
+            articleDiv.classList.add("article");
+
+            const titleElement = document.createElement("h2");
+            titleElement.textContent = title;
+
+            const imageElement = document.createElement("img");
+            imageElement.src = image;
+            imageElement.alt = title;
+
+            const descriptionElement = document.createElement("p");
+            descriptionElement.textContent = description.substring(0, 100) + "...";
+
+            const linkElement = document.createElement("a");
+            linkElement.href = link;
+            linkElement.textContent = "Llegir més";
+
+            articleDiv.appendChild(titleElement);
+            articleDiv.appendChild(imageElement);
+            articleDiv.appendChild(descriptionElement);
+            articleDiv.appendChild(linkElement);
+
+            container.appendChild(articleDiv);
+          });
+        })
+        .catch(err => console.log("Error al llegir les notícies:", err));
+    });
+  </script>
+    <script src="./Noticias RSS_files/popper.min.js.descarga"></script>
+    <script src="./Noticias RSS_files/bootstrap.min.js.descarga"></script>
+  
+  <script>
+  // Codi per llegir dades Cryptomonedes i mostrar amb desplaçament 
+  
+         // Función para realizar la solicitud a la API de Binance
+          function fetchCryptoPrices() {
+              const topCryptos = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 'XRPUSDT', 'DOTUSDT', 'DOGEUSDT', 'AVAXUSDT', 'LUNAUSDT'];
+              fetch('https://api.binance.com/api/v3/ticker/price')
+              .then(response => response.json())
+              .then(data => {
+                  const cryptoTicker = document.getElementById('marquee');
+                  let moneda = ""; 
+  
+                  // Recorrer los datos de la respuesta JSON
+                  data.forEach(crypto => {
+                      const symbol0 = crypto.symbol;
+                      const price0 = crypto.price;
+                      const price = parseFloat(price0).toString();
+                      
+                      // Verificar si el símbolo está en la lista de las 10 principales criptomonedas
+                      if (topCryptos.includes(symbol0)) {
+                          // Crear un elemento para cada criptomoneda y precio
+                          const symbol = symbol0.replace(/USDT$/, ""); // Eliminar los últimos 4 caracteres (USDT)
+                          moneda += `<strong>${symbol}</strong>: ${price} &emsp; &emsp; `; // Concatenar el contenido
+                      }
+                  });
+  
+                  const mostra = `<marquee onmouseover="this.stop();" onmouseout="this.start();" id="scroll">${moneda}</marquee>`; 
+  
+                  // Insertar el contenido HTML dentro del marquee
+                  cryptoTicker.innerHTML = mostra;  
+                  
+              })
+              .catch(error => {
+                  console.error('Error al recuperar los datos:', error);
+              });
+          }
+  
+          // Llamar a la función al cargar la página
+          fetchCryptoPrices();
+  
+          // Actualizar las cotizaciones cada X segundos
+          setInterval(fetchCryptoPrices, 20000); // Cambiar 20000 por el intervalo deseado en milisegundos
+      </script> 
+      
+  </body>
+  
+  </html>
+</body>
+</html>
